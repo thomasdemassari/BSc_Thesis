@@ -1,6 +1,6 @@
 # BSC Thesis: "L'impatto dei tassi di interesse sul settore bancario"
 # Owner: Thomas De Massari
-# Last update: 2024-06-04
+# Last update: 2024-07-01
 
 rm(list=ls())
 
