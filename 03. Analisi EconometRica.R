@@ -2110,23 +2110,33 @@ t.test(etero_ratio, mu = 1)
 }
 
 
-# Distribuzione di B con errori non normali e con n = 216
+# Distribuzione di B (SUR) con errori non normali e con n = 216 -----
 {
   reps = 10^6
   obs = 216
-  betas = NULL
+  betas1 = NULL; betas2 = NULL
   
   last_time = Sys.time()  # Tempo a inizio ciclo
   time_elapsed = 0
   intervallo = 15 # secondi che passano tra una stampa e l'altra per sapere dove sono nel ciclo
   
+  # Errori non normali e correlati tra loro (uso il SUR) 
   for (i in 1:reps){
-    x = rnorm(obs)
-    y = 2*x + 1.5*runif(obs)
+    x1 = rnorm(obs)
+    x2 = rnorm(obs)
+    e1 = runif(obs)
+    e2 = e1 + 0.5*runif(obs)
+    y1 = 2*x1 + 1.5*e1
+    y2 = 2*x2 + 1.5*e2
+    data = data.frame(y1, y2, x1, x2)
     
-    ols = lm(y ~ x)
-    beta = summary(ols)$coeff[2]
-    betas[i] = beta
+    eq1 = y1 ~ x1
+    eq2 = y2 ~ x2
+    eqs = list(eq1 = eq1, eq2 = eq2)
+    
+    fit = systemfit(eqs, method = "SUR", data = data)
+    betas1[i] = coef(fit)[2]
+    betas2[i] = coef(fit)[4]
     
     # Aggiungo delle istruzioni per sapere a che punto sono nel ciclo visto che probabilmente 
     # ci metterà un pò a simulare su grandi campioni
@@ -2140,10 +2150,19 @@ t.test(etero_ratio, mu = 1)
       last_time = current_time  # Aggiorna l'ultimo tempo di stampa
     }
   }
-  write.csv(betas, "Results/Simulazioni/Betas_n216.csv")
+  write.csv(betas1, "Results/Simulazioni/Betas1_n216.csv")
+  write.csv(betas2, "Results/Simulazioni/Betas2_n216.csv")
 }
 
-betas = (read.csv("Results/Simulazioni/Betas_n216.csv"))[, "x"]
-hist(betas)
-kurtosis(betas)
-skewness(betas)
+betas1 = (read.csv("Results/Simulazioni/Betas1_n216.csv"))[, "x"]
+betas2 = (read.csv("Results/Simulazioni/Betas2_n216.csv"))[, "x"]
+
+par(mfrow = c(1,2))
+hist(betas1, main = "Betas - eq1")
+hist(betas2, main = "Betas - eq2")
+par(mfrow = c(1,1))
+
+kurtosis(betas1)
+skewness(betas1)
+kurtosis(betas2)
+skewness(betas2)
