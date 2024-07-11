@@ -2116,14 +2116,13 @@ t.test(etero_ratio, mu = 1)
   obs = 216
   betas1 = NULL; betas2 = NULL
   
-  last_time = Sys.time()  # Tempo a inizio ciclo
-  time_elapsed = 0
-  intervallo = 15 # secondi che passano tra una stampa e l'altra per sapere dove sono nel ciclo
+  x1_pop = rnorm(10^6)
+  x2_pop = rnorm(10^6)
   
-  # Errori non normali e correlati tra loro (uso il SUR) 
+  # Errori non normali e correlati tra loro (uso il SUR)
   for (i in 1:reps){
-    x1 = rnorm(obs)
-    x2 = rnorm(obs)
+    x1 = sample(x1_pop, obs)
+    x2 = sample(x2_pop, obs)
     e1 = runif(obs)
     e2 = e1 + 0.5*runif(obs)
     y1 = 2*x1 + 1.5*e1
