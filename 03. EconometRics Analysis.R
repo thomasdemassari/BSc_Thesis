@@ -1415,11 +1415,19 @@ par(mfrow = c(1,1))
 
 # SECTION 5: GRAPHS ----
 # Euribor and Libor ----
-plot(cbind(ts(euribor_monthly, start = c(2006,1), frequency = 12), ts(libor_monthly, start = c(2006,1), frequency = 12)), 
-     plot.type = "single", col = c("black", "grey"), type = "l", xlab = "Time", ylab = "Interest Rate (%)")
+plot(cbind(ts(euribor, start = 2006, frequency = 1), ts(libor, start = 2006, frequency = 1)), 
+     plot.type = "single", col = c("black", "grey"), type = "l", xlab = "Time", ylab = "Interest Rate (%)",
+     lwd = 2)
+rect(xleft = 2006, xright = 2008, ybottom = par("usr")[3], ytop = par("usr")[4], 
+     col = rgb(224/255, 224/255, 224/255, alpha = 0.5), border = NA)
+rect(xleft = 2022, xright = 2023, ybottom = par("usr")[3], ytop = par("usr")[4], 
+     col = rgb(224/255, 224/255, 224/255, alpha = 0.5), border = NA)
+lines(ts(euribor, start = 2006, frequency = 1), col = "black", lwd = 2)
+lines(ts(libor, start = 2006, frequency = 1), col = "grey", lwd = 2)
 abline(h = 0, lty = "dashed")
-legend("topright", legend = c("Euribor", "Libor"), col = c("black", "grey"), lty = 1)
+legend("top", legend = c("Euribor", "Libor"), col = c("black", "grey"), lty = 1, bty = "n")
 axis(1, at = c(2006:2023), las = 1)
+
 
 # Trends in balance sheet components ----
 roa_median = NULL; roa_q05per = NULL; roa_q25per = NULL; roa_q75per = NULL; roa_q95per = NULL 
@@ -1511,10 +1519,10 @@ legend("topright",  legend = c("Median", "25th-75th Percentile Area", "5th-95th 
 par(mfrow = c(1,1))
 
 # Histogram with standard errors with OLS and HC3 estimates for ROA -----
-sds_list = list("ROA" = lm_roa$sds, "NII" = lm_nii$sds, "OI" = lm_oi$sds, 
-                "PROV" = lm_prov$sds, "STOCKS" = lm_stocks$sds)
+sds_list = list("ROA" = lm_roa_dcb$sds, "NII" = lm_nii_dcb$sds, "OI" = lm_oi_dcb$sds, 
+                "PROV" = lm_prov_dcb$sds, "STOCKS" = lm_azioni$sds)
 names_list = c("ROA", "NII", "OI", "PROV", "STOCKS")
-for (i in 1:5){
+for (i in 1:length(names_list)){
   if (names_list[i] == "ROA"){
     sds = sds_list$ROA
   } else{
@@ -1535,7 +1543,7 @@ for (i in 1:5){
     }
   }
   
-  png(file = paste0("/Users/thomasdemassari/Library/CloudStorage/OneDrive-Personal/Università/BSc/Tesi/sds_", names_list[i], ".png"),
+  png(file = paste0("/Users/thomasdemassari/Desktop/grafici/sds_", names_list[i], ".png"),
       width=1550, height=850)
   
   {
@@ -1547,27 +1555,27 @@ for (i in 1:5){
               args.legend = list(x = "topleft", bty = "n"), 
               main = paste("Standard error of the intercept in the model with", names_list[i]))
       
-      matrix_b1 = rbind(sds[, "s.e. OLS - intrate"], sds[, "s.e. HC3 - intrate"])
+      matrix_b1 = rbind(sds[, "s.e. OLS - b1"], sds[, "s.e. HC3 - b1"])
       barplot(matrix_b1, beside = TRUE, col = c("black", "grey"), legend.text = c("s.e. OLS", "s.e. HC3"),
               args.legend = list(x = "topleft", bty = "n"), 
               main = paste("Standard error of b_intrate in the model with", names_list[i]))
       
-      matrix_b2 = rbind(sds[, "s.e. OLS - dcb"], sds[, "s.e. HC3 - dcb"])
+      matrix_b2 = rbind(sds[, "s.e. OLS - b2"], sds[, "s.e. HC3 - b2"])
       barplot(matrix_b2, beside = TRUE, col = c("black", "grey"), legend.text = c("s.e. OLS", "s.e. HC3"),
               args.legend = list(x = "topleft", bty = "n"), 
               main = paste("Standard error of b_dcb in the model with", names_list[i]))
       
-      matrix_b3 = rbind(sds[, "s.e. OLS - crisis"], sds[, "s.e. HC3 - crisis"])
+      matrix_b3 = rbind(sds[, "s.e. OLS - b3"], sds[, "s.e. HC3 - b3"])
       barplot(matrix_b3, beside = TRUE, col = c("black", "grey"), legend.text = c("s.e. OLS", "s.e. HC3"),
               args.legend = list(x = "topleft", bty = "n"), 
               main = paste("Standard error of b_crisis in the model with", names_list[i]))
       
-      matrix_b4 = rbind(sds[, "s.e. OLS - c*int"], sds[, "s.e. HC3 - c*int"])
+      matrix_b4 = rbind(sds[, "s.e. OLS - b4"], sds[, "s.e. HC3 - b4"])
       barplot(matrix_b4, beside = TRUE, col = c("black", "grey"), legend.text = c("s.e. OLS", "s.e. HC3"),
               args.legend = list(x = "topleft", bty = "n"), 
               main = paste("Standard error of b_c*int in the model with", names_list[i]))
       
-      matrix_b5 = rbind(sds[, "s.e. OLS - c*dcb"], sds[, "s.e. HC3 - c*dcb"])
+      matrix_b5 = rbind(sds[, "s.e. OLS - b5"], sds[, "s.e. HC3 - b5"])
       barplot(matrix_b5, beside = TRUE, col = c("black", "grey"), legend.text = c("s.e. OLS", "s.e. HC3"),
               args.legend = list(x = "topleft", bty = "n"), 
               main = paste("Standard error of b_c*dcb in the model with", names_list[i]))
@@ -1664,6 +1672,18 @@ for (i in 1:14){
 }
 par(mfrow = c(1,1))
 
+# QQ Plot of BPN and SANX residuals (ROA) ----
+res_bnp = lm_roa_dcb$res[2, ]
+res_sanx = lm_roa_dcb$res[4,]
+qqnorm(res_bnp, main = "", xlab = "Theoretical Quantiles", ylab = "Observed Quantiles")
+qqline(res_bnp, col = "black")
+qqnorm(res_sanx, main = "", xlab = "Theoretical Quantiles", ylab = "Observed Quantiles")
+qqline(res_sanx, col = "black")
+
+# Residuals of ucg (ROA) ----
+res_ucg = lm_roa_dcb$res[11, ]
+hist(res_ucg, main = "", xlab = "Residuals")
+
 # Distribution of Residuals ----
 par(mfrow = c(4,4))
 for (i in 1:14){
@@ -1675,6 +1695,7 @@ for (i in 1:14){
   hist(res, main = paste("Residuals - Returns of", banks_acronym[i]), xlab = "Residuals")
 }
 par(mfrow = c(1,1))
+
 
 # SECTION 6: MC SIMULATIONS ----
 # Testing the power of the stationarity test in small samples ----
